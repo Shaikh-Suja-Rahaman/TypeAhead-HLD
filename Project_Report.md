@@ -122,3 +122,11 @@ The in-memory buffering strategy effectively eliminates database locking constra
 
 ### 5.3 Cache Resilience
 The system achieved a **100% cache hit rate** during benchmark testing due to the pre-warming ingestion phase. In the event of an eviction, the fallback-and-rebuild mechanism ensures the system remains highly available, albeit with a temporary latency penalty on the initial missed read.
+
+## 6. Application Interface (Screenshots)
+
+The following screenshots demonstrate the autocomplete functionality and the trending search interfaces.
+
+![Autocomplete Interface](./docs/screenshots/Screenshot%202026-06-21%20at%2011.28.49%E2%80%AFPM.png)
+
+![Trending Interface](./docs/screenshots/Screenshot%202026-06-21%20at%2011.29.10%E2%80%AFPM.png)
