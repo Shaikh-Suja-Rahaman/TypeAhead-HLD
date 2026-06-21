@@ -6,7 +6,7 @@ The Typeahead Autocomplete Engine employs a sharded, distributed architecture de
 
 ### 1.1 Architecture Diagram
 
-![Architecture Layout](./High%20Level%20Design.png)
+![Architecture Layout](https://raw.githubusercontent.com/Shaikh-Suja-Rahaman/TypeAhead-HLD/main/High%20Level%20Design.png)
 
 *(Note: If viewing this markdown file in an environment without access to the local filesystem, the image above will not render. See the instructions at the end of this document or use a PDF export to ensure the image is embedded permanently.)*
 
@@ -127,6 +127,6 @@ The system achieved a **100% cache hit rate** during benchmark testing due to th
 
 The following screenshots demonstrate the autocomplete functionality and the trending search interfaces.
 
-![Autocomplete Interface](./docs/screenshots/Screenshot%202026-06-21%20at%2011.28.49%E2%80%AFPM.png)
+![Autocomplete Interface](https://raw.githubusercontent.com/Shaikh-Suja-Rahaman/TypeAhead-HLD/main/docs/screenshots/Screenshot%202026-06-21%20at%2011.28.49%E2%80%AFPM.png)
 
-![Trending Interface](./docs/screenshots/Screenshot%202026-06-21%20at%2011.29.10%E2%80%AFPM.png)
+![Trending Interface](https://raw.githubusercontent.com/Shaikh-Suja-Rahaman/TypeAhead-HLD/main/docs/screenshots/Screenshot%202026-06-21%20at%2011.29.10%E2%80%AFPM.png)

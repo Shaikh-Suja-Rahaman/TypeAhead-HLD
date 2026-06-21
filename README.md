@@ -2,7 +2,7 @@
 
 A highly available and scalable search autocomplete service built on a distributed backend. This architecture relies on **PostgreSQL as the authoritative data store** to persistently track search query frequencies, paired with a **sharded Redis cluster** that caches prefix-to-suggestion mappings for lightning-fast reads. A custom load balancer utilizes a consistent hashing ring to intelligently route traffic to the appropriate nodes. A dedicated background daemon continually syncs the cache layer with the database without blocking the primary application servers. The entire ecosystem is powered natively by `Bun`.
 
-![Architecture Layout](./High%20Level%20Design.png)
+![Architecture Layout](https://raw.githubusercontent.com/Shaikh-Suja-Rahaman/TypeAhead-HLD/main/High%20Level%20Design.png)
 
 ## Core Features & Grading Checklist
 
