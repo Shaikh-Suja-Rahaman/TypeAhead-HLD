@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TypeAhead - HLD</title>
+  <style>
+    body {
+      font-family: arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: #fff;
+      color: #202124;
+    }
+    a { color: #202124; text-decoration: none; font-size: 13px; }
+    a:hover { text-decoration: underline; }
+    
+    /* Top Navigation */
+    .top-nav { display: flex; justify-content: space-between; padding: 15px; align-items: center; }
+    .top-nav-left { display: flex; gap: 15px; margin-left: 5px; }
+    .top-nav-right { display: flex; gap: 15px; align-items: center; margin-right: 5px; }
+    
+    .apps-icon { 
+      fill: #5f6368; 
+      width: 24px; 
+      height: 24px; 
+      cursor: pointer; 
+      padding: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .apps-icon:hover { background-color: #f1f3f4; }
+    
+    .sign-in-btn {
+      background-color: #1a73e8;
+      color: #fff;
+      padding: 9px 23px;
+      border-radius: 4px;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid transparent;
+      margin-left: 10px;
+    }
+    .sign-in-btn:hover {
+      background-color: #1b66c9;
+      box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      text-decoration: none;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10vh;
+    }
+    .logo-container { margin-bottom: 35px; }
+    .logo-container img { max-width: 272px; max-height: 92px; }
+    
+    /* Search Wrapper */
+    .search-wrapper { position: relative; width: 100%; max-width: 584px; z-index: 3; }
+    
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 1px solid #dfe1e5;
+      border-radius: 24px;
+      height: 46px;
+      padding: 0 14px 0 14px;
+      transition: box-shadow 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    .search-box:hover, .search-wrapper.active .search-box {
+      box-shadow: 0 1px 6px rgba(32,33,36,.28);
+      border-color: rgba(223,225,229,0);
+    }
+    .search-wrapper.active .search-box {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom: 1px solid transparent;
+    }
+    
+    .search-icon svg { fill: #9aa0a6; width: 20px; height: 20px; margin-right: 12px; }
+    
+    #searchInput {
+      flex-grow: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      color: rgba(0,0,0,.87);
+      background-color: transparent;
+    }
+    
+    .mic-icon svg { width: 24px; height: 24px; margin-left: 12px; cursor: pointer; }
+    
+    /* Dropdown */
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 46px;
+      left: 0;
+      right: 0;
+      background: #fff;
+      box-shadow: 0 4px 6px rgba(32,33,36,.28);
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      padding-bottom: 15px;
+      z-index: 2;
+    }
+    .search-wrapper.active .dropdown { display: block; }
+    .dropdown::before {
+      content: "";
+      display: block;
+      border-top: 1px solid #e8eaed;
+      margin: 0 20px;
+    }
+    
+    #autocompleteResults { list-style: none; margin: 12px 0 0 0; padding: 0; }
+    #autocompleteResults li {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      cursor: pointer;
+      min-height: 33px;
+      font-size: 16px;
+      color: #212529;
+    }
+    #autocompleteResults li:hover, #autocompleteResults li[aria-selected="true"] {
+      background-color: #eee;
+    }
+    #autocompleteResults li .list-icon {
+      width: 20px;
+      height: 20px;
+      fill: #9aa0a6;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+    .sugg-text {
+      flex-grow: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sugg-match { font-weight: bold; }
+    .trend-score { font-size: 13px; color: #70757a; margin-left: 10px; }
+    
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 1;
+      display: none;
+    }
+    .search-wrapper.active + .overlay { display: block; }
+    
+    /* Buttons */
+    .buttons-container {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      z-index: 0;
+      position: relative;
+    }
+    .search-wrapper.active ~ .buttons-container { visibility: hidden; } /* Hide behind dropdown */
+    
+    .btn {
+      background-color: #f8f9fa;
+      border: 1px solid #f8f9fa;
+      border-radius: 4px;
+      color: #3c4043;
+      font-family: arial,sans-serif;
+      font-size: 14px;
+      padding: 0 16px;
+      line-height: 27px;
+      height: 36px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .btn:hover {
+      box-shadow: 0 1px 1px rgba(0,0,0,.1);
+      border-color: #dadce0;
+      color: #202124;
+    }
+    
+    /* Trending */
+    .trending-container {
+      margin-top: 30px;
+      width: 100%;
+      max-width: 584px;
+      padding: 0 10px;
+    }
+    .trending-header {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #70757a;
+      margin-bottom: 12px;
+      padding-left: 5px;
+    }
+    .trending-header svg { width: 16px; height: 16px; fill: #70757a; margin-right: 8px; }
+    .trending-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .trending-grid li {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 16px;
+      background-color: #f8f9fa;
+      cursor: pointer;
+      font-size: 14px;
+      color: #202124;
+    }
+    .trending-grid li:hover { background-color: #e8eaed; }
+    .trend-icon { width: 16px; height: 16px; fill: #9aa0a6; margin-right: 12px; flex-shrink: 0; }
+    .trend-text { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Footer */
+    .footer {
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      color: #70757a;
+    }
+    .footer-top {
+      padding: 15px 30px;
+      border-bottom: 1px solid #dadce0;
+      font-size: 15px;
+    }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-wrap: wrap;
+    }
+    .footer-bottom-left, .footer-bottom-right {
+      display: flex;
+      padding: 15px 0;
+    }
+    .footer-bottom a {
+      color: #70757a;
+      padding: 0 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="top-nav-left">
+      <a href="#">About System</a>
+      <a href="#">Architecture</a>
+    </div>
+    <div class="top-nav-right">
+      <a href="https://github.com" target="_blank">GitHub</a>
+      <a href="#">API Docs</a>
+      <div class="apps-icon">
+        <!-- Google Apps 3x3 Grid Icon -->
+        <svg focusable="false" viewBox="0 0 24 24"><path d="M6,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM6,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM12,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM16,6c0,1.1 0.9,2 2,2s2,-0.9 2,-2 -0.9,-2 -2,-2 -2,0.9 -2,2zM12,8c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,14c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2zM18,20c1.1,0 2,-0.9 2,-2s-0.9,-2 -2,-2 -2,0.9 -2,2 0.9,2 2,2z"></path></svg>
+      </div>
+      <a href="#" class="sign-in-btn">Deploy Node</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="logo-container">
+      <img src="./google-logo-transparent.png" alt="Google Logo">
+    </div>
+
+    <div class="search-wrapper" id="searchWrapper">
+      <div class="search-box">
+        <div class="search-icon">
+          <!-- Magnifying glass SVG -->
+          <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+        </div>
+        <input id="searchInput" type="text" autocomplete="off" spellcheck="false" autofocus />
+        <div class="mic-icon">
+          <!-- Microphone SVG colored like Google's -->
+          <svg focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path><path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path><path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.8-2.05-4.67h2c0 1.45 0.56 2.42 1.47 3.38v0.32l-1.15 1.18z"></path><path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path></svg>
+        </div>
+      </div>
+      
+      <div class="dropdown">
+        <ul id="autocompleteResults" role="listbox"></ul>
+      </div>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+
+    <div class="buttons-container">
+      <button class="btn" id="searchBtn">TypeAhead</button>
+      <button class="btn" id="luckyBtn">HLD - 101</button>
+    </div>
+
+    <div class="trending-container">
+      <div class="trending-header">
+        <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"></path></svg>
+        Trending searches
+      </div>
+      <ul class="trending-grid" id="trendingList"></ul>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-top">
+      United States
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-left">
+        <a href="#">Advertising</a>
+        <a href="#">Business</a>
+        <a href="#">How Search works</a>
+      </div>
+      <div class="footer-bottom-right">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Settings</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>

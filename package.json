@@ -1,0 +1,28 @@
+{
+  "name": "search-typeahead-system",
+  "module": "src/proxy.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "seed": "bun run scripts/init.ts",
+    "lb": "bun run src/proxy.ts",
+    "app": "bun run src/app-node.ts",
+    "updater": "bun run src/sync-daemon.ts",
+    "bench": "bun run scripts/benchmark.ts",
+    "demo:recency": "bun run scripts/demo-recency.ts",
+    "dev:app1": "SHARD_ID=1 PORT=3001 bun run --watch src/app-node.ts",
+    "dev:app2": "SHARD_ID=2 PORT=3002 bun run --watch src/app-node.ts",
+    "dev:app3": "SHARD_ID=3 PORT=3003 bun run --watch src/app-node.ts",
+    "dev:lb": "bun run --watch src/proxy.ts",
+    "dev:updater": "bun run --watch src/sync-daemon.ts",
+    "test": "bun test",
+    "up": "docker compose up --build",
+    "down": "docker compose down -v"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
